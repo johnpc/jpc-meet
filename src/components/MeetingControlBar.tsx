@@ -1,10 +1,9 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useAudioVideo,
   useMeetingManager,
   ControlBar,
   ControlBarButton,
-  Meeting,
   LeaveMeeting,
   AudioInputControl,
   Input,
@@ -12,15 +11,18 @@ import {
   Remove,
   VideoInputControl,
   AudioOutputControl,
+  Camera,
 } from "amazon-chime-sdk-component-library-react";
 import { MeetingSessionConfiguration } from "amazon-chime-sdk-js";
 import { v4 as uuidv4 } from "uuid";
-import { Loader, useTheme } from "@aws-amplify/ui-react";
+import { Loader, Text, useTheme } from "@aws-amplify/ui-react";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../amplify/data/resource";
 const client = generateClient<Schema>();
 
-const MeetingControlBar = () => {
+const MeetingControlBar = (props: {
+  setJoinedMeetingId: (meetingId: string) => void;
+}) => {
   const { tokens } = useTheme();
   const [meetingId, setMeetingId] = useState("");
   const [requestId, setRequestId] = useState("");
@@ -39,14 +41,26 @@ const MeetingControlBar = () => {
     await meetingManager.leave();
   };
 
-  const handleJoin = async () => {
+  const isValidMeetingName = (meetingName: string) => {
+    return /^[a-zA-Z0-9_-]+$/.test(meetingName);
+  };
+
+  const handleJoin = async (meetingNameOverride?: string) => {
+    const meetingName = meetingNameOverride ?? requestId;
+    if (!isValidMeetingName(meetingName)) {
+      alert(
+        "Invalid meeting PIN. Only alphanumeric characters, underscores, and dashes are allowed.",
+      );
+      return;
+    }
+
     setLoading(true);
-    const meetingFields = (
-      await client.queries.getMeetingMetadata({
-        meetingName: requestId,
-        attendeeName: uuidv4(),
-      })
-    ).data!;
+    const meetingFieldsResponse = await client.queries.getMeetingMetadata({
+      meetingName: meetingNameOverride ?? requestId,
+      attendeeName: uuidv4(),
+    });
+
+    const meetingFields = meetingFieldsResponse.data!;
     const meetingSessionConfiguration = new MeetingSessionConfiguration(
       {
         ...meetingFields,
@@ -69,13 +83,28 @@ const MeetingControlBar = () => {
     await meetingManager.start();
     meetingManager.invokeDeviceProvider(DeviceLabels.AudioAndVideo);
     setMeetingId(meetingFields.meetingId!);
+    props.setJoinedMeetingId(meetingNameOverride ?? requestId);
     setLoading(false);
   };
+
+  useEffect(() => {
+    let path = window.location.pathname;
+    if (path.endsWith("/")) {
+      path = path.slice(0, -1);
+    }
+    if (path.startsWith("/")) {
+      path = path.slice(1);
+    }
+    if (path.length) {
+      handleJoin(path);
+    }
+  }, []);
 
   return (
     <ControlBar showLabels={true} responsive={true} layout="bottom">
       {!audioVideo && (
         <Input
+          disabled={isLoading}
           showClear={true}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             setRequestId(e.target.value)
@@ -89,9 +118,13 @@ const MeetingControlBar = () => {
       {isLoading && <Loader margin={tokens.space.small} />}
       {!audioVideo && (
         <ControlBarButton
-          icon={<Meeting />}
+          icon={<Camera />}
           onClick={() => handleJoin()}
-          label="Join"
+          label={
+            (
+              <Text textAlign={"center"}>Create or Join</Text>
+            ) as unknown as string
+          }
         />
       )}
       {audioVideo && (

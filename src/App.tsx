@@ -7,20 +7,31 @@ import VideoMeeting from "./components/VideoMeeting";
 import { Header } from "./components/Header";
 import { Card, useTheme, View } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
+import { useState } from "react";
+import { CopyLink } from "./components/CopyLink";
 Amplify.configure(config);
 
 function App() {
   const { tokens } = useTheme();
+  const [joinedMeetingId, setJoinedMeetingId] = useState("");
+
   return (
     <>
       <Header />
       <View marginTop={tokens.space.medium}>
         <MeetingProvider>
           <FeaturedVideoTileProvider>
-            <Card variation="elevated">
-              <VideoMeeting />
-            </Card>
-            <MeetingControlBar />
+            {joinedMeetingId ? (
+              <Card variation="elevated">
+                <VideoMeeting />
+                <CopyLink
+                  link={`${window.location.protocol}//${window.location.hostname}/${joinedMeetingId}`}
+                />
+              </Card>
+            ) : (
+              <Card variation="elevated">You're not in a meeting yet!</Card>
+            )}
+            <MeetingControlBar setJoinedMeetingId={setJoinedMeetingId} />
           </FeaturedVideoTileProvider>
         </MeetingProvider>
       </View>
