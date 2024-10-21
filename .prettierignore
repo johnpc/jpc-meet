@@ -1,0 +1,11 @@
+.prettierignore
+.gitignore
+*.png
+*.svg
+*.ico
+*.webp
+.husky/
+.amplify/
+ios/
+dist/
+*.tsbuildinfo
