@@ -9,6 +9,7 @@ import { Card, useTheme, View } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import { useState } from "react";
 import { CopyLink } from "./components/CopyLink";
+import { AttendeeList } from "./components/AttendeeList";
 Amplify.configure(config);
 
 function App() {
@@ -22,12 +23,15 @@ function App() {
         <MeetingProvider>
           <FeaturedVideoTileProvider>
             {joinedMeetingId ? (
-              <Card variation="elevated">
-                <VideoMeeting />
-                <CopyLink
-                  link={`${window.location.protocol}//${window.location.hostname}/${joinedMeetingId}`}
-                />
-              </Card>
+              <>
+                <AttendeeList />
+                <Card variation="elevated">
+                  <VideoMeeting />
+                  <CopyLink
+                    link={`${window.location.protocol}//${window.location.hostname}/${joinedMeetingId}`}
+                  />
+                </Card>
+              </>
             ) : (
               <Card variation="elevated">You're not in a meeting yet!</Card>
             )}

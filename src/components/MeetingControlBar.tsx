@@ -37,7 +37,7 @@ const MeetingControlBar = (props: {
 
   const handleToggleScreenshare = async () => {
     toggleContentShare();
-  }
+  };
 
   const isValidMeetingName = (meetingName: string) => {
     return /^[a-zA-Z0-9_-]+$/.test(meetingName);
