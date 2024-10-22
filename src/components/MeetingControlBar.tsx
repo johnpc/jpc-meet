@@ -8,10 +8,11 @@ import {
   AudioInputControl,
   Input,
   DeviceLabels,
-  Remove,
   VideoInputControl,
   AudioOutputControl,
   Camera,
+  useContentShareControls,
+  ScreenShare,
 } from "amazon-chime-sdk-component-library-react";
 import { MeetingSessionConfiguration } from "amazon-chime-sdk-js";
 import { v4 as uuidv4 } from "uuid";
@@ -24,22 +25,19 @@ const MeetingControlBar = (props: {
   setJoinedMeetingId: (meetingId: string) => void;
 }) => {
   const { tokens } = useTheme();
-  const [meetingId, setMeetingId] = useState("");
   const [requestId, setRequestId] = useState("");
   const audioVideo = useAudioVideo();
   const meetingManager = useMeetingManager();
   const [isLoading, setLoading] = useState(false);
+  const { toggleContentShare } = useContentShareControls();
 
   const handleLeave = async () => {
     await meetingManager.leave();
   };
 
-  const handleEnd = async () => {
-    await client.queries.endMeeting({
-      meetingName: meetingId,
-    });
-    await meetingManager.leave();
-  };
+  const handleToggleScreenshare = async () => {
+    toggleContentShare();
+  }
 
   const isValidMeetingName = (meetingName: string) => {
     return /^[a-zA-Z0-9_-]+$/.test(meetingName);
@@ -82,7 +80,6 @@ const MeetingControlBar = (props: {
     await meetingManager.join(meetingSessionConfiguration, options);
     await meetingManager.start();
     meetingManager.invokeDeviceProvider(DeviceLabels.AudioAndVideo);
-    setMeetingId(meetingFields.meetingId!);
     props.setJoinedMeetingId(meetingNameOverride ?? requestId);
     setLoading(false);
   };
@@ -135,9 +132,9 @@ const MeetingControlBar = (props: {
             label="Leave"
           />
           <ControlBarButton
-            icon={<Remove />}
-            onClick={() => handleEnd()}
-            label="End"
+            icon={<ScreenShare />}
+            onClick={() => handleToggleScreenshare()}
+            label="Share"
           />
           <AudioInputControl />
           <AudioOutputControl />
