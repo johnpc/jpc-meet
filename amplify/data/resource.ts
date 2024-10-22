@@ -1,5 +1,10 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
-import { getMeetingMetadata } from "../function/resource";
+import {
+  getMeetingMetadata,
+  getRecordingDownloadKey,
+  startRecording,
+  stopRecording,
+} from "../function/resource";
 
 const schema = a
   .schema({
@@ -61,6 +66,22 @@ const schema = a
       .returns(a.ref("MeetingAndAttendee"))
       .handler(a.handler.function(getMeetingMetadata))
       .authorization((allow) => allow.guest()),
+    startRecording: a
+      .query()
+      .arguments({
+        meetingId: a.string().required(),
+      })
+      .returns(a.ref("StringLike"))
+      .handler(a.handler.function(startRecording))
+      .authorization((allow) => allow.guest()),
+    stopRecording: a
+      .query()
+      .arguments({
+        recordingId: a.string().required(),
+      })
+      .returns(a.ref("StringLike"))
+      .handler(a.handler.function(stopRecording))
+      .authorization((allow) => allow.guest()),
     endMeeting: a
       .query()
       .arguments({
@@ -68,6 +89,14 @@ const schema = a
       })
       .returns(a.ref("StringLike"))
       .handler(a.handler.function(getMeetingMetadata))
+      .authorization((allow) => allow.guest()),
+    getRecordingDownloadKey: a
+      .query()
+      .arguments({
+        recordingId: a.string().required(),
+      })
+      .returns(a.ref("StringLike"))
+      .handler(a.handler.function(getRecordingDownloadKey))
       .authorization((allow) => allow.guest()),
   })
   .authorization((allow) => allow.resource(getMeetingMetadata));
