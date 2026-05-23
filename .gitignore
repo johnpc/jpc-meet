@@ -30,3 +30,4 @@ amplifyconfiguration*
 .eslintcache
 .npm
 *.tsbuildinfo
+coverage/

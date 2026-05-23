@@ -1,26 +1,8 @@
-import { useEffect } from "react";
-import {
-  useLocalVideo,
-  VideoTileGrid,
-  useMeetingStatus,
-  MeetingStatus,
-} from "amazon-chime-sdk-component-library-react";
+import { VideoTileGrid } from "amazon-chime-sdk-component-library-react";
+import { useVideoMeeting } from "../hooks/useVideoMeeting";
 
 const VideoMeeting = () => {
-  const meetingStatus = useMeetingStatus();
-  const { toggleVideo } = useLocalVideo();
-
-  useEffect(() => {
-    async function tog() {
-      if (meetingStatus === MeetingStatus.Succeeded) {
-        await toggleVideo();
-      }
-      if (meetingStatus === MeetingStatus.Ended) {
-        console.log("Meeting Ended");
-      }
-    }
-    tog();
-  }, [meetingStatus]);
+  useVideoMeeting();
 
   return (
     <div style={{ height: "60vh", width: "80vw" }}>
