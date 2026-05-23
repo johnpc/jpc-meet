@@ -16,65 +16,82 @@ import { Header } from "./components/Header";
 import { LandingPage } from "./components/LandingPage";
 import { Card, useTheme, View } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CopyLink } from "./components/CopyLink";
 import { AttendeeList } from "./components/AttendeeList";
+
+type LoadingAction = "start" | "join" | "auto" | null;
 Amplify.configure(config);
 
 const client = generateClient<Schema>();
 
+function generateMeetingPin(): string {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const values = crypto.getRandomValues(new Uint8Array(10));
+  return Array.from(values, (v) => chars[v % chars.length]).join("");
+}
+
 function MeetingApp() {
   const { tokens } = useTheme();
   const [joinedMeetingId, setJoinedMeetingId] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<LoadingAction>(null);
+  const [error, setError] = useState("");
   const meetingManager = useMeetingManager();
 
   const isValidMeetingName = (meetingName: string) => {
     return /^[a-zA-Z0-9_-]+$/.test(meetingName);
   };
 
-  const handleJoinMeeting = async (meetingPin: string) => {
-    if (!isValidMeetingName(meetingPin)) {
-      alert(
-        "Invalid meeting PIN. Only alphanumeric characters, underscores, and dashes are allowed.",
-      );
-      return;
-    }
+  const handleJoinMeeting = useCallback(
+    async (meetingPin: string, action: LoadingAction = "join") => {
+      if (!isValidMeetingName(meetingPin)) {
+        setError(
+          "Invalid meeting PIN. Only alphanumeric characters, underscores, and dashes are allowed.",
+        );
+        return;
+      }
 
-    setIsLoading(true);
-    try {
-      const meetingFieldsResponse = await client.queries.getMeetingMetadata({
-        meetingName: meetingPin,
-        attendeeName: uuidv4(),
-      });
+      setError("");
+      setLoadingAction(action);
+      try {
+        const meetingFieldsResponse = await client.queries.getMeetingMetadata({
+          meetingName: meetingPin,
+          attendeeName: uuidv4(),
+        });
 
-      const meetingFields = meetingFieldsResponse.data!;
-      const meetingSessionConfiguration = new MeetingSessionConfiguration(
-        {
-          ...meetingFields,
-          mediaPlacement: {
+        const meetingFields = meetingFieldsResponse.data!;
+        const meetingSessionConfiguration = new MeetingSessionConfiguration(
+          {
             ...meetingFields,
-            audioFallbackUrl: meetingFields.audioFallbackUrl,
-            audioHostUrl: meetingFields.audioHostUrl,
-            signalingUrl: meetingFields.signalingUrl,
-            turnControlUrl: meetingFields.turnControlUrl,
+            mediaPlacement: {
+              ...meetingFields,
+              audioFallbackUrl: meetingFields.audioFallbackUrl,
+              audioHostUrl: meetingFields.audioHostUrl,
+              signalingUrl: meetingFields.signalingUrl,
+              turnControlUrl: meetingFields.turnControlUrl,
+            },
           },
-        },
-        { ...meetingFields },
-      );
+          { ...meetingFields },
+        );
 
-      const options = {
-        deviceLabels: DeviceLabels.AudioAndVideo,
-      };
+        const options = {
+          deviceLabels: DeviceLabels.AudioAndVideo,
+        };
 
-      await meetingManager.join(meetingSessionConfiguration, options);
-      await meetingManager.start();
-      meetingManager.invokeDeviceProvider(DeviceLabels.AudioAndVideo);
-      setJoinedMeetingId(meetingPin);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        await meetingManager.join(meetingSessionConfiguration, options);
+        await meetingManager.start();
+        meetingManager.invokeDeviceProvider(DeviceLabels.AudioAndVideo);
+        setJoinedMeetingId(meetingPin);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to join meeting.";
+        setError(message);
+      } finally {
+        setLoadingAction(null);
+      }
+    },
+    [meetingManager],
+  );
 
   useEffect(() => {
     let path = window.location.pathname;
@@ -85,9 +102,9 @@ function MeetingApp() {
       path = path.slice(1);
     }
     if (path.length) {
-      handleJoinMeeting(path);
+      handleJoinMeeting(path, "auto");
     }
-  }, []);
+  }, [handleJoinMeeting]);
 
   return (
     <>
@@ -106,7 +123,11 @@ function MeetingApp() {
         ) : (
           <LandingPage
             onJoinMeeting={handleJoinMeeting}
-            isLoading={isLoading}
+            onStartMeeting={() =>
+              handleJoinMeeting(generateMeetingPin(), "start")
+            }
+            loadingAction={loadingAction}
+            error={error}
           />
         )}
         <MeetingControlBar />
