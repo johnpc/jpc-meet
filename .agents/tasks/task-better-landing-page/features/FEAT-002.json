@@ -1,0 +1,27 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Redesign the landing page (pre-meeting state) to be visually appealing with clear CTAs for creating a new meeting or joining an existing one. Currently, the pre-meeting state just shows a Card with 'You're not in a meeting yet!' and a ControlBar at the bottom with an input and join button. Replace this with a proper centered landing page that has a hero section, clear instructions, and prominent actions.",
+  "status": "pending",
+  "steps": [
+    "Create a new component src/components/LandingPage.tsx that serves as the pre-meeting landing page. It should include: (1) A centered hero section with the app name/tagline and a brief description of what the app does (zero-auth video conferencing). (2) Two clear action sections: 'Start a New Meeting' button that generates a random meeting ID and joins immediately, and a 'Join an Existing Meeting' section with a text input for the meeting PIN and a join button. (3) Use @aws-amplify/ui-react components (Heading, Text, Button, Card, Flex, View, TextField, Divider, useTheme) for consistent styling. (4) Include visual polish: good spacing using Amplify UI tokens, a card-based layout with elevation, appropriate heading hierarchy, and responsive design. (5) Add a brief feature list or instruction hints (e.g., 'No sign-up required', 'Share your meeting PIN to invite others', 'Supports screen sharing and recording').",
+    "Refactor src/components/MeetingControlBar.tsx: Extract the meeting join logic (handleJoin, isValidMeetingName, the useEffect for URL-based join) so it can be reused. The MeetingControlBar should only show meeting controls (leave, share, record, audio/video) when in a meeting - remove the pre-meeting input/join UI from it since that moves to LandingPage.",
+    "Update src/App.tsx to render <LandingPage /> when joinedMeetingId is empty instead of the current Card. Pass the necessary callbacks (a join handler and a create handler) to LandingPage. Keep the URL-based auto-join logic (from useEffect in MeetingControlBar) working - it should still auto-join when a path like /meeting-pin is visited.",
+    "Add a CSS file src/components/LandingPage.css for any styles that cannot be achieved with inline Amplify UI tokens (e.g., subtle gradient backgrounds, hover transitions, max-width containers). Keep it minimal and focused.",
+    "Ensure the Header component still renders above the landing page and that the overall page looks cohesive."
+  ],
+  "acceptance_criteria": [
+    "When no meeting is joined, a visually appealing landing page is shown with clear 'Start a Meeting' and 'Join a Meeting' sections",
+    "The 'Start a Meeting' button creates a random meeting PIN and initiates joining",
+    "The 'Join a Meeting' section has a text field for entering a PIN and a join button",
+    "Invalid meeting PIN shows an appropriate error or alert",
+    "Visiting a URL like /some-meeting-pin still auto-joins that meeting",
+    "Once in a meeting, the video grid, control bar, attendee list, and copy link all still work as before",
+    "The page is responsive and looks good on both desktop and mobile viewports",
+    "npm run build passes",
+    "npm run lint passes"
+  ],
+  "verification": ["npm run build", "npm run lint"],
+  "blocked_reason": null,
+  "findings": ""
+}

@@ -1,0 +1,7 @@
+{
+  "task_id": "task-better-landing-page",
+  "task_description": "Redesign the landing page for creating/joining a meeting. Replace the minimal 'You're not in a meeting yet!' card with a polished, user-friendly landing page that has clear CTAs for starting a new meeting or joining an existing one with a PIN.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}
