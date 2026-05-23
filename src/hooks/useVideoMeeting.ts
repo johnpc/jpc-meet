@@ -19,5 +19,6 @@ export function useVideoMeeting() {
       }
     }
     tog();
-  }, [meetingStatus, toggleVideo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meetingStatus]);
 }
