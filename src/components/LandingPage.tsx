@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Alert,
   Button,
   Card,
   Divider,
@@ -12,28 +13,36 @@ import {
   View,
 } from "@aws-amplify/ui-react";
 
+type LoadingAction = "start" | "join" | "auto" | null;
+
 interface LandingPageProps {
-  onJoinMeeting: (meetingPin: string) => Promise<void>;
-  isLoading: boolean;
+  onJoinMeeting: (meetingPin: string, action?: LoadingAction) => Promise<void>;
+  onStartMeeting: () => Promise<void>;
+  loadingAction: LoadingAction;
+  error: string;
 }
 
-export const LandingPage = ({ onJoinMeeting, isLoading }: LandingPageProps) => {
+export const LandingPage = ({
+  onJoinMeeting,
+  onStartMeeting,
+  loadingAction,
+  error,
+}: LandingPageProps) => {
   const { tokens } = useTheme();
   const [meetingPin, setMeetingPin] = useState("");
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
 
   const handleStartNewMeeting = async () => {
-    const randomPin = Math.random().toString(36).substring(2, 8);
-    await onJoinMeeting(randomPin);
+    await onStartMeeting();
   };
 
   const handleJoinMeeting = async () => {
     if (!meetingPin.trim()) {
-      setError("Please enter a meeting PIN.");
+      setLocalError("Please enter a meeting PIN.");
       return;
     }
-    setError("");
-    await onJoinMeeting(meetingPin.trim());
+    setLocalError("");
+    await onJoinMeeting(meetingPin.trim(), "join");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -42,12 +51,10 @@ export const LandingPage = ({ onJoinMeeting, isLoading }: LandingPageProps) => {
     }
   };
 
+  const displayError = localError || error;
+
   return (
-    <View
-      maxWidth="600px"
-      margin="0 auto"
-      padding={tokens.space.large}
-    >
+    <View maxWidth="600px" margin="0 auto" padding={tokens.space.large}>
       <Flex direction="column" alignItems="center" gap={tokens.space.large}>
         {/* Hero Section */}
         <Flex
@@ -65,14 +72,22 @@ export const LandingPage = ({ onJoinMeeting, isLoading }: LandingPageProps) => {
           </Text>
         </Flex>
 
+        {/* Error display */}
+        {displayError && (
+          <Alert variation="error" isDismissible={false} width="100%">
+            {displayError}
+          </Alert>
+        )}
+
         {/* Start New Meeting Section */}
         <Card variation="elevated" width="100%" padding={tokens.space.large}>
-          <Flex direction="column" alignItems="center" gap={tokens.space.medium}>
+          <Flex
+            direction="column"
+            alignItems="center"
+            gap={tokens.space.medium}
+          >
             <Heading level={4}>Start a New Meeting</Heading>
-            <Text
-              textAlign="center"
-              color={tokens.colors.font.secondary}
-            >
+            <Text textAlign="center" color={tokens.colors.font.secondary}>
               Create a meeting and share the PIN with others to invite them.
             </Text>
             <Button
@@ -80,7 +95,8 @@ export const LandingPage = ({ onJoinMeeting, isLoading }: LandingPageProps) => {
               size="large"
               isFullWidth={true}
               onClick={handleStartNewMeeting}
-              isLoading={isLoading}
+              isLoading={loadingAction === "start"}
+              isDisabled={loadingAction !== null}
               loadingText="Starting..."
             >
               Start Meeting
@@ -107,10 +123,7 @@ export const LandingPage = ({ onJoinMeeting, isLoading }: LandingPageProps) => {
             <Heading level={4} textAlign="center">
               Join an Existing Meeting
             </Heading>
-            <Text
-              textAlign="center"
-              color={tokens.colors.font.secondary}
-            >
+            <Text textAlign="center" color={tokens.colors.font.secondary}>
               Enter the meeting PIN shared with you.
             </Text>
             <TextField
@@ -120,19 +133,20 @@ export const LandingPage = ({ onJoinMeeting, isLoading }: LandingPageProps) => {
               value={meetingPin}
               onChange={(e) => {
                 setMeetingPin(e.target.value);
-                if (error) setError("");
+                if (localError) setLocalError("");
               }}
               onKeyDown={handleKeyDown}
-              hasError={!!error}
-              errorMessage={error}
-              isDisabled={isLoading}
+              hasError={!!localError}
+              errorMessage={localError}
+              isDisabled={loadingAction !== null}
             />
             <Button
               variation="primary"
               size="large"
               isFullWidth={true}
               onClick={handleJoinMeeting}
-              isLoading={isLoading}
+              isLoading={loadingAction === "join"}
+              isDisabled={loadingAction !== null}
               loadingText="Joining..."
             >
               Join Meeting
@@ -166,7 +180,7 @@ export const LandingPage = ({ onJoinMeeting, isLoading }: LandingPageProps) => {
         </Flex>
 
         {/* Loading indicator for URL-based auto-join */}
-        {isLoading && (
+        {loadingAction === "auto" && (
           <Flex direction="column" alignItems="center" gap={tokens.space.small}>
             <Loader size="large" />
             <Text color={tokens.colors.font.secondary}>
