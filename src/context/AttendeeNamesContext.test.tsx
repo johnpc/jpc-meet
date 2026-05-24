@@ -125,6 +125,34 @@ describe("AttendeeNamesContext", () => {
     );
   });
 
+  it("getAttendeeName falls back to externalUserId prefix when no name", () => {
+    mockRoster["attendee-789"] = { externalUserId: "Charlie#789" };
+    const { result } = renderHook(() => useAttendeeNamesContext(), { wrapper });
+    expect(result.current.getAttendeeName("attendee-789")).toBe("Charlie");
+    delete mockRoster["attendee-789"];
+  });
+
+  it("getAttendeeName returns Unknown when no roster entry at all", () => {
+    const { result } = renderHook(() => useAttendeeNamesContext(), { wrapper });
+    expect(result.current.getAttendeeName("no-such-id")).toBe("Unknown");
+  });
+
+  it("broadcastNameChange is no-op when attendeeId is empty", () => {
+    mockMeetingManager.meetingSessionConfiguration = {
+      credentials: { attendeeId: "" },
+    };
+    const { result } = renderHook(() => useAttendeeNamesContext(), { wrapper });
+
+    act(() => {
+      result.current.broadcastNameChange("NewName");
+    });
+
+    expect(mockAudioVideo.realtimeSendDataMessage).not.toHaveBeenCalled();
+    mockMeetingManager.meetingSessionConfiguration = {
+      credentials: { attendeeId: "attendee-123" },
+    };
+  });
+
   it("throws when used outside provider", () => {
     expect(() => {
       renderHook(() => useAttendeeNamesContext());

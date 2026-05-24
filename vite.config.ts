@@ -1,6 +1,15 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
+import { existsSync } from "fs";
+
+const amplifyOutputsPath = path.resolve(__dirname, "amplify_outputs.json");
+const amplifyMockPath = path.resolve(
+  __dirname,
+  "src/test/amplify-outputs-mock.json",
+);
+const needsAmplifyMock = !existsSync(amplifyOutputsPath);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,7 +19,18 @@ export default defineConfig({
     // necessary for chime lib to work
     global: {},
   },
+  resolve: {
+    alias: needsAmplifyMock
+      ? { "../amplify_outputs.json": amplifyMockPath }
+      : {},
+  },
   test: {
+    alias: {
+      "../amplify_outputs.json": path.resolve(
+        __dirname,
+        "src/test/amplify-outputs-mock.json",
+      ),
+    },
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
@@ -24,19 +44,12 @@ export default defineConfig({
         "src/test/**",
         "src/vite-env.d.ts",
         "src/main.tsx",
-        "src/App.tsx",
-        "src/components/MeetingControlBar.tsx",
-        "src/components/VideoMeeting.tsx",
-        "src/components/AttendeeList.tsx",
-        "src/components/ChatPanel.tsx",
-        "src/components/ChatMessage.tsx",
-        "src/components/ChatToggleButton.tsx",
       ],
       thresholds: {
-        branches: 80,
-        functions: 80,
-        lines: 80,
-        statements: 80,
+        branches: 90,
+        functions: 90,
+        lines: 90,
+        statements: 90,
       },
     },
   },
