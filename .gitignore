@@ -34,3 +34,6 @@ amplifyconfiguration*
 .npm
 *.tsbuildinfo
 coverage/
+playwright-report/
+test-results/
+.features-gen/
