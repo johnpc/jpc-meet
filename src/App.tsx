@@ -6,11 +6,13 @@ import MeetingControlBar from "./components/MeetingControlBar";
 import VideoMeeting from "./components/VideoMeeting";
 import { Header } from "./components/Header";
 import { LandingPage } from "./components/LandingPage";
-import { Card, useTheme, View } from "@aws-amplify/ui-react";
+import { Card, Flex, useTheme, View } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import { CopyLink } from "./components/CopyLink";
 import { AttendeeList } from "./components/AttendeeList";
 import { useMeeting } from "./hooks/useMeeting";
+import { ChatProvider } from "./context/ChatContext";
+import { ChatPanel } from "./components/ChatPanel";
 
 Amplify.configure(config);
 
@@ -29,24 +31,30 @@ function MeetingApp() {
       <Header />
       <View marginTop={tokens.space.medium}>
         {joinedMeetingId ? (
-          <>
+          <ChatProvider>
             <AttendeeList />
-            <Card variation="elevated">
-              <VideoMeeting />
-              <CopyLink
-                link={`${window.location.protocol}//${window.location.hostname}/${joinedMeetingId}`}
-              />
-            </Card>
-          </>
+            <Flex direction="row" style={{ height: "60vh" }}>
+              <Card variation="elevated" style={{ flex: 1 }}>
+                <VideoMeeting />
+                <CopyLink
+                  link={`${window.location.protocol}//${window.location.hostname}/${joinedMeetingId}`}
+                />
+              </Card>
+              <ChatPanel />
+            </Flex>
+            <MeetingControlBar />
+          </ChatProvider>
         ) : (
-          <LandingPage
-            onJoinMeeting={handleJoinMeeting}
-            onStartMeeting={handleStartMeeting}
-            loadingAction={loadingAction}
-            error={error}
-          />
+          <>
+            <LandingPage
+              onJoinMeeting={handleJoinMeeting}
+              onStartMeeting={handleStartMeeting}
+              loadingAction={loadingAction}
+              error={error}
+            />
+            <MeetingControlBar />
+          </>
         )}
-        <MeetingControlBar />
       </View>
     </>
   );
