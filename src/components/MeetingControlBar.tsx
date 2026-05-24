@@ -16,8 +16,14 @@ import {
 import { Loader, Text } from "@aws-amplify/ui-react";
 import { useRecording } from "../hooks/useRecording";
 import ChatToggleButton from "./ChatToggleButton";
+import { EditNameButton } from "./EditNameButton";
 
-const MeetingControlBar = () => {
+export interface MeetingControlBarProps {
+  attendeeName?: string;
+  onNameChange?: (newName: string) => void;
+}
+
+const MeetingControlBar = ({ attendeeName, onNameChange }: MeetingControlBarProps) => {
   const audioVideo = useAudioVideo();
   const meetingManager = useMeetingManager();
   const { toggleContentShare } = useContentShareControls();
@@ -63,6 +69,9 @@ const MeetingControlBar = () => {
           ) as unknown as string
         }
       />
+      {attendeeName && onNameChange && (
+        <EditNameButton attendeeName={attendeeName} onNameChange={onNameChange} />
+      )}
       <AudioInputControl />
       <AudioOutputControl />
       <VideoInputControl />

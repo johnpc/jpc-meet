@@ -45,7 +45,10 @@ function MeetingApp() {
               </Card>
               <ChatPanel />
             </div>
-            <MeetingControlBar />
+            <MeetingControlBar
+              attendeeName={attendeeName}
+              onNameChange={setAttendeeName}
+            />
           </ChatProvider>
         ) : (
           <>
