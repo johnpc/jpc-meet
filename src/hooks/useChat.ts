@@ -35,6 +35,12 @@ export function useChat(senderName?: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const senderNameRef = useRef<string>(senderName || generateAttendeeName());
 
+  useEffect(() => {
+    if (senderName) {
+      senderNameRef.current = senderName;
+    }
+  }, [senderName]);
+
   const handleChatMessage = useCallback((dataMessage: DataMessage) => {
     const text = new TextDecoder().decode(dataMessage.data);
     let payload: ChatMessagePayload;

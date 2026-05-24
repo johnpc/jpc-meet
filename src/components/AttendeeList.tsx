@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import {
   RosterAttendee,
   RosterAttendeeType,
@@ -13,15 +13,17 @@ export const AttendeeList = () => {
   const attendees = Object.values(roster);
   const nameCacheRef = useRef<Record<string, string>>({});
 
-  meetingManager.getAttendee = async (
-    chimeAttendeeId: string,
-    _externalUserId?: string,
-  ) => {
-    if (!nameCacheRef.current[chimeAttendeeId]) {
-      nameCacheRef.current[chimeAttendeeId] = generateAttendeeName();
-    }
-    return { name: nameCacheRef.current[chimeAttendeeId] };
-  };
+  useEffect(() => {
+    meetingManager.getAttendee = async (
+      chimeAttendeeId: string,
+      _externalUserId?: string,
+    ) => {
+      if (!nameCacheRef.current[chimeAttendeeId]) {
+        nameCacheRef.current[chimeAttendeeId] = generateAttendeeName();
+      }
+      return { name: nameCacheRef.current[chimeAttendeeId] };
+    };
+  }, [meetingManager]);
 
   return (
     <>
