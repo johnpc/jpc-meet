@@ -30,9 +30,19 @@
   .control-bar-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
-  .control-bar-wrapper > * {
-    flex-wrap: nowrap;
+  .control-bar-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .control-bar-wrapper > div {
+    display: inline-flex !important;
+    flex-wrap: nowrap !important;
+    width: max-content !important;
+    min-width: 100%;
+    justify-content: flex-start !important;
+    padding: 0 8px;
   }
 }
