@@ -37,7 +37,13 @@ export function useChat() {
 
   const handleChatMessage = useCallback((dataMessage: DataMessage) => {
     const text = new TextDecoder().decode(dataMessage.data);
-    const payload: ChatMessagePayload = JSON.parse(text);
+    let payload: ChatMessagePayload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      console.warn("useChat: dropped malformed chat-message payload");
+      return;
+    }
 
     setMessages((prev) => {
       if (prev.some((m) => m.id === payload.messageId)) {
@@ -61,7 +67,13 @@ export function useChat() {
 
   const handleChatReaction = useCallback((dataMessage: DataMessage) => {
     const text = new TextDecoder().decode(dataMessage.data);
-    const payload: ChatReactionPayload = JSON.parse(text);
+    let payload: ChatReactionPayload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      console.warn("useChat: dropped malformed chat-reaction payload");
+      return;
+    }
 
     setMessages((prev) =>
       prev.map((msg) => {

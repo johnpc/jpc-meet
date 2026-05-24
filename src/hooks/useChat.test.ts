@@ -193,4 +193,72 @@ describe("useChat", () => {
     expect(mockRealtimeSendDataMessage).not.toHaveBeenCalled();
     expect(result.current.messages).toHaveLength(0);
   });
+
+  it("sendMessage returns error and does not send when payload exceeds 2048 bytes", () => {
+    const { result } = renderHook(() => useChat());
+
+    // Generate a message long enough to exceed 2048 bytes when serialized as JSON payload
+    const longMessage = "x".repeat(2100);
+    let sendResult: { error?: string } = {};
+
+    act(() => {
+      sendResult = result.current.sendMessage(longMessage);
+    });
+
+    expect(sendResult.error).toBe("Message is too long to send");
+    expect(mockRealtimeSendDataMessage).not.toHaveBeenCalled();
+    expect(result.current.messages).toHaveLength(0);
+  });
+
+  it("handleChatMessage drops malformed payloads without crashing", () => {
+    renderHook(() => useChat());
+
+    const chatMessageCallback =
+      mockRealtimeSubscribeToReceiveDataMessage.mock.calls.find(
+        (call) => call[0] === "chat-message",
+      )?.[1];
+    expect(chatMessageCallback).toBeDefined();
+
+    // Send invalid JSON - should not throw
+    const malformedMessage = {
+      topic: "chat-message",
+      data: new TextEncoder().encode("not valid json {{{"),
+      senderAttendeeId: "attendee-1",
+      senderExternalUserId: "external-1",
+      timestampMs: 1000,
+      throttled: false,
+    };
+
+    expect(() => {
+      act(() => {
+        chatMessageCallback(malformedMessage);
+      });
+    }).not.toThrow();
+  });
+
+  it("handleChatReaction drops malformed payloads without crashing", () => {
+    renderHook(() => useChat());
+
+    const reactionCallback =
+      mockRealtimeSubscribeToReceiveDataMessage.mock.calls.find(
+        (call) => call[0] === "chat-reaction",
+      )?.[1];
+    expect(reactionCallback).toBeDefined();
+
+    // Send invalid JSON - should not throw
+    const malformedMessage = {
+      topic: "chat-reaction",
+      data: new TextEncoder().encode("<<<invalid>>>"),
+      senderAttendeeId: "attendee-1",
+      senderExternalUserId: "external-1",
+      timestampMs: 1000,
+      throttled: false,
+    };
+
+    expect(() => {
+      act(() => {
+        reactionCallback(malformedMessage);
+      });
+    }).not.toThrow();
+  });
 });
