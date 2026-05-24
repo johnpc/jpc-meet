@@ -62,8 +62,9 @@ export function useMeeting() {
   );
 
   const setAttendeeName = useCallback((name: string) => {
-    attendeeNameRef.current = name;
-    setAttendeeNameState(name);
+    const sanitized = name.replace(/#/g, "");
+    attendeeNameRef.current = sanitized;
+    setAttendeeNameState(sanitized);
   }, []);
 
   const handleJoinMeeting = useCallback(

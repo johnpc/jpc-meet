@@ -194,4 +194,24 @@ describe("useMeeting", () => {
     const callArgs = mockGetMeetingMetadata.mock.calls[0][0];
     expect(callArgs.attendeeName).toBe("Custom Name");
   });
+
+  it("strips # characters from attendee name", () => {
+    const { result } = renderHook(() => useMeeting());
+
+    act(() => {
+      result.current.setAttendeeName("Jane #1");
+    });
+
+    expect(result.current.attendeeName).toBe("Jane 1");
+  });
+
+  it("strips multiple # characters from attendee name", () => {
+    const { result } = renderHook(() => useMeeting());
+
+    act(() => {
+      result.current.setAttendeeName("A#B#C");
+    });
+
+    expect(result.current.attendeeName).toBe("ABC");
+  });
 });

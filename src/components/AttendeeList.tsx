@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   RosterAttendee,
   RosterAttendeeType,
@@ -11,15 +10,13 @@ export const AttendeeList = () => {
   const meetingManager = useMeetingManager();
   const attendees = Object.values(roster);
 
-  useEffect(() => {
-    meetingManager.getAttendee = async (
-      _chimeAttendeeId: string,
-      externalUserId?: string,
-    ) => {
-      const name = externalUserId?.split("#")[0] || "Unknown";
-      return { name };
-    };
-  }, [meetingManager]);
+  meetingManager.getAttendee = async (
+    _chimeAttendeeId: string,
+    externalUserId?: string,
+  ) => {
+    const name = externalUserId?.split("#")[0] || "Unknown";
+    return { name };
+  };
 
   return (
     <>
