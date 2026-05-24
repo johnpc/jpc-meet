@@ -48,34 +48,36 @@ const MeetingControlBar = ({ attendeeName, onNameChange }: MeetingControlBarProp
   }
 
   return (
-    <ControlBar showLabels={true} responsive={true} layout="bottom">
-      <ControlBarButton
-        icon={<LeaveMeeting />}
-        onClick={() => meetingManager.leave()}
-        label="Leave"
-      />
-      <ControlBarButton
-        icon={<ScreenShare />}
-        onClick={() => toggleContentShare()}
-        label="Share"
-      />
-      <ChatToggleButton />
-      <ControlBarButton
-        icon={iconMap[iconType]}
-        onClick={clickMap[clickAction]}
-        label={
-          (
-            <Text textAlign={"center"}>{recordingLabel}</Text>
-          ) as unknown as string
-        }
-      />
-      {attendeeName && onNameChange && (
-        <EditNameButton attendeeName={attendeeName} onNameChange={onNameChange} />
-      )}
-      <AudioInputControl />
-      <AudioOutputControl />
-      <VideoInputControl />
-    </ControlBar>
+    <div className="control-bar-wrapper">
+      <ControlBar showLabels={true} responsive={true} layout="bottom">
+        <ControlBarButton
+          icon={<LeaveMeeting />}
+          onClick={() => meetingManager.leave()}
+          label="Leave"
+        />
+        <ControlBarButton
+          icon={<ScreenShare />}
+          onClick={() => toggleContentShare()}
+          label="Share"
+        />
+        <ChatToggleButton />
+        <ControlBarButton
+          icon={iconMap[iconType]}
+          onClick={clickMap[clickAction]}
+          label={
+            (
+              <Text textAlign={"center"}>{recordingLabel}</Text>
+            ) as unknown as string
+          }
+        />
+        {attendeeName && onNameChange && (
+          <EditNameButton attendeeName={attendeeName} onNameChange={onNameChange} />
+        )}
+        <AudioInputControl />
+        <AudioOutputControl />
+        <VideoInputControl />
+      </ControlBar>
+    </div>
   );
 };
 
