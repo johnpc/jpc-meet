@@ -24,6 +24,7 @@ function MeetingApp() {
     error,
     handleJoinMeeting,
     handleStartMeeting,
+    attendeeName,
   } = useMeeting();
 
   return (
@@ -31,7 +32,7 @@ function MeetingApp() {
       <Header />
       <View marginTop={tokens.space.medium}>
         {joinedMeetingId ? (
-          <ChatProvider>
+          <ChatProvider senderName={attendeeName}>
             <AttendeeList />
             <Flex direction="row" style={{ height: "60vh" }}>
               <Card variation="elevated" style={{ flex: 1 }}>

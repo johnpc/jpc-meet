@@ -30,10 +30,10 @@ const MESSAGE_LIFETIME_MS = 300000;
 const MAX_MESSAGE_PAYLOAD_BYTES = 2048;
 const MAX_MESSAGES = 500;
 
-export function useChat() {
+export function useChat(senderName?: string) {
   const audioVideo = useAudioVideo();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const senderNameRef = useRef<string>(generateAttendeeName());
+  const senderNameRef = useRef<string>(senderName || generateAttendeeName());
 
   const handleChatMessage = useCallback((dataMessage: DataMessage) => {
     const text = new TextDecoder().decode(dataMessage.data);

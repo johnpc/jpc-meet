@@ -210,6 +210,19 @@ describe("useChat", () => {
     expect(result.current.messages).toHaveLength(0);
   });
 
+  it("uses provided senderName instead of generated name", () => {
+    const { result } = renderHook(() => useChat("Custom Name"));
+
+    act(() => {
+      result.current.sendMessage("Hello world");
+    });
+
+    expect(mockRealtimeSendDataMessage).toHaveBeenCalledTimes(1);
+    const [, payloadStr] = mockRealtimeSendDataMessage.mock.calls[0];
+    const payload = JSON.parse(payloadStr);
+    expect(payload.senderName).toBe("Custom Name");
+  });
+
   it("handleChatMessage drops malformed payloads without crashing", () => {
     renderHook(() => useChat());
 
