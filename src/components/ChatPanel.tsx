@@ -7,6 +7,7 @@ export const ChatPanel: React.FC = () => {
   const { messages, sendMessage, sendReaction, isChatOpen, toggleChat } =
     useChatContext();
   const [inputValue, setInputValue] = useState("");
+  const [sendError, setSendError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -15,8 +16,13 @@ export const ChatPanel: React.FC = () => {
 
   const handleSend = () => {
     if (inputValue.trim()) {
-      sendMessage(inputValue);
-      setInputValue("");
+      setSendError(null);
+      const result = sendMessage(inputValue);
+      if (result.error) {
+        setSendError(result.error);
+      } else {
+        setInputValue("");
+      }
     }
   };
 
@@ -116,6 +122,11 @@ export const ChatPanel: React.FC = () => {
             Send
           </Button>
         </Flex>
+        {sendError && (
+          <Text color="red" fontSize="0.75rem" style={{ marginTop: "4px" }}>
+            {sendError}
+          </Text>
+        )}
       </View>
     </View>
   );

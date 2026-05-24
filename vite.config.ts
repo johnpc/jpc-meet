@@ -31,7 +31,6 @@ export default defineConfig({
         "src/components/ChatPanel.tsx",
         "src/components/ChatMessage.tsx",
         "src/components/ChatToggleButton.tsx",
-        "src/context/ChatContext.tsx",
       ],
       thresholds: {
         branches: 90,
