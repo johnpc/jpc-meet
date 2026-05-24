@@ -13,23 +13,35 @@
   background-color: #fafafa;
 }
 
-.control-bar-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.control-bar-wrapper::-webkit-scrollbar {
-  display: none;
-}
-
 .control-bar-wrapper > div {
-  display: inline-flex !important;
+  display: flex !important;
   flex-wrap: nowrap !important;
-  width: max-content !important;
-  min-width: 100%;
-  justify-content: flex-start !important;
-  padding: 0 8px;
+  justify-content: center !important;
+}
+
+.more-controls-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 80px;
+}
+
+.more-controls-panel {
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.more-controls-panel > div {
+  position: static !important;
+  box-shadow: none !important;
+  border: none !important;
+  height: auto !important;
 }
 
 @media (max-width: 768px) {
