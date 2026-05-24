@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Implement the full in-meeting chat feature using Chime SDK DataMessage API, with markdown rendering, hyperlink handling, and emoji reactions. This includes: a useChat hook, a ChatPanel component with message rendering, a ChatMessage component with markdown/link support, emoji reaction support on messages, and integration into the meeting UI with a toggle button.",
-  "status": "pending",
+  "status": "completed",
   "steps": [
     "Create src/hooks/useChat.ts - A custom hook that: (1) uses useAudioVideo() to access the AudioVideoFacade, (2) subscribes to 'chat-message' and 'chat-reaction' DataMessage topics via realtimeSubscribeToReceiveDataMessage(), (3) provides sendMessage(text: string) using realtimeSendDataMessage('chat-message', ...) with JSON payload {senderName, message, messageId, timestamp}, (4) provides sendReaction(messageId: string, emoji: string) using realtimeSendDataMessage('chat-reaction', ...) with JSON payload {messageId, emoji, senderName}, (5) maintains messages state array with type ChatMessage {id, senderName, text, timestamp, reactions: Map<string, string[]>}, (6) cleans up subscriptions on unmount. Use the attendee name from the Chime roster (useRosterState) or generate one using generateAttendeeName(). DataMessage lifetime should be set to 300000ms (5 minutes) so late joiners get recent messages.",
     "Create src/components/ChatMessage.tsx - A component that renders a single chat message: (1) shows sender name and timestamp, (2) renders message content using ReactMarkdown with remark-gfm plugin for markdown support (headings, bold, italic, lists, code blocks, tables), (3) automatically makes URLs clickable via markdown link syntax and remark-gfm autolink literals, (4) shows emoji reaction buttons below the message, (5) has an 'add reaction' button that shows a small picker with common emojis (thumbs up, heart, laugh, surprised, sad, fire, clap, 100). Reactions show the emoji plus count and list of who reacted on hover/title attribute.",
@@ -30,5 +30,5 @@
     "Run 'npx vitest run' and confirm all existing tests still pass"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "The AudioVideoFacade's realtimeUnsubscribeFromReceiveDataMessage only accepts a single argument (topic string), not a callback. The useChat hook was adjusted accordingly. The ChatProvider wraps only the meeting content area (when joinedMeetingId is truthy) so it has access to the AudioVideoFacade. MeetingControlBar is rendered inside ChatProvider. VideoMeeting width changed from fixed 80vw to 100% to flex properly alongside the ChatPanel."
 }
