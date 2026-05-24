@@ -5,7 +5,7 @@ const VideoMeeting = () => {
   useVideoMeeting();
 
   return (
-    <div style={{ height: "60vh", width: "80vw" }}>
+    <div style={{ height: "60vh", width: "100%" }}>
       <VideoTileGrid />
     </div>
   );
