@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:crap": "vitest run --coverage && tsx scripts/crap-score.ts",
+    "prod-config": "ampx generate outputs --app-id dx58fjke2s86k --branch main --profile personal",
     "sandbox": "ampx sandbox --profile personal --once",
     "generate-graphql-code": "ampx generate graphql-client-code --out amplify/function/graphql/ --profile personal"
   },
