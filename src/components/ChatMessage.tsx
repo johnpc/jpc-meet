@@ -54,6 +54,7 @@ export const ChatMessageItem: React.FC<ChatMessageProps> = ({
       >
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
+          disallowedElements={["img"]}
           components={{
             a: ({ children, href, ...props }) => (
               <a

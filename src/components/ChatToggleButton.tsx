@@ -1,5 +1,6 @@
+import { useContext } from "react";
 import { ControlBarButton } from "amazon-chime-sdk-component-library-react";
-import { useChatContext } from "../context/ChatContext";
+import { ChatContext } from "../context/ChatContext";
 
 const ChatIcon = () => (
   <svg
@@ -18,8 +19,13 @@ const ChatIcon = () => (
 );
 
 const ChatToggleButton = () => {
-  const { unreadCount, toggleChat } = useChatContext();
+  const context = useContext(ChatContext);
 
+  if (!context) {
+    return null;
+  }
+
+  const { unreadCount, toggleChat } = context;
   const label = unreadCount > 0 ? `Chat (${unreadCount})` : "Chat";
 
   return (

@@ -27,6 +27,8 @@ interface ChatReactionPayload {
 const CHAT_MESSAGE_TOPIC = "chat-message";
 const CHAT_REACTION_TOPIC = "chat-reaction";
 const MESSAGE_LIFETIME_MS = 300000;
+const MAX_MESSAGE_PAYLOAD_BYTES = 2048;
+const MAX_MESSAGES = 500;
 
 export function useChat() {
   const audioVideo = useAudioVideo();
@@ -41,7 +43,7 @@ export function useChat() {
       if (prev.some((m) => m.id === payload.messageId)) {
         return prev;
       }
-      return [
+      const updated = [
         ...prev,
         {
           id: payload.messageId,
@@ -51,6 +53,9 @@ export function useChat() {
           reactions: {},
         },
       ];
+      return updated.length > MAX_MESSAGES
+        ? updated.slice(-MAX_MESSAGES)
+        : updated;
     });
   }, []);
 
@@ -100,8 +105,8 @@ export function useChat() {
   }, [audioVideo, handleChatMessage, handleChatReaction]);
 
   const sendMessage = useCallback(
-    (text: string) => {
-      if (!audioVideo || !text.trim()) return;
+    (text: string): { error?: string } => {
+      if (!audioVideo || !text.trim()) return {};
 
       const messageId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const payload: ChatMessagePayload = {
@@ -111,22 +116,36 @@ export function useChat() {
         timestamp: Date.now(),
       };
 
+      const payloadStr = JSON.stringify(payload);
+      if (
+        new TextEncoder().encode(payloadStr).length > MAX_MESSAGE_PAYLOAD_BYTES
+      ) {
+        return { error: "Message is too long to send" };
+      }
+
       audioVideo.realtimeSendDataMessage(
         CHAT_MESSAGE_TOPIC,
-        JSON.stringify(payload),
+        payloadStr,
         MESSAGE_LIFETIME_MS,
       );
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: messageId,
-          senderName: payload.senderName,
-          text: payload.message,
-          timestamp: payload.timestamp,
-          reactions: {},
-        },
-      ]);
+      setMessages((prev) => {
+        const updated = [
+          ...prev,
+          {
+            id: messageId,
+            senderName: payload.senderName,
+            text: payload.message,
+            timestamp: payload.timestamp,
+            reactions: {},
+          },
+        ];
+        return updated.length > MAX_MESSAGES
+          ? updated.slice(-MAX_MESSAGES)
+          : updated;
+      });
+
+      return {};
     },
     [audioVideo],
   );

@@ -10,7 +10,7 @@ import { ChatMessage, useChat } from "../hooks/useChat";
 
 interface ChatContextType {
   messages: ChatMessage[];
-  sendMessage: (text: string) => void;
+  sendMessage: (text: string) => { error?: string };
   sendReaction: (messageId: string, emoji: string) => void;
   unreadCount: number;
   isChatOpen: boolean;
@@ -18,7 +18,7 @@ interface ChatContextType {
   resetUnread: () => void;
 }
 
-const ChatContext = createContext<ChatContextType | null>(null);
+export const ChatContext = createContext<ChatContextType | null>(null);
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { messages, sendMessage, sendReaction } = useChat();
