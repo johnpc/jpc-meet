@@ -6,8 +6,9 @@ import MeetingControlBar from "./components/MeetingControlBar";
 import VideoMeeting from "./components/VideoMeeting";
 import { Header } from "./components/Header";
 import { LandingPage } from "./components/LandingPage";
-import { Card, Flex, useTheme, View } from "@aws-amplify/ui-react";
+import { Card, useTheme, View } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
+import "./App.css";
 import { CopyLink } from "./components/CopyLink";
 import { AttendeeList } from "./components/AttendeeList";
 import { useMeeting } from "./hooks/useMeeting";
@@ -34,7 +35,7 @@ function MeetingApp() {
         {joinedMeetingId ? (
           <ChatProvider senderName={attendeeName}>
             <AttendeeList />
-            <Flex direction="row" style={{ height: "60vh" }}>
+            <div className="meeting-layout">
               <Card variation="elevated" style={{ flex: 1 }}>
                 <VideoMeeting />
                 <CopyLink
@@ -42,7 +43,7 @@ function MeetingApp() {
                 />
               </Card>
               <ChatPanel />
-            </Flex>
+            </div>
             <MeetingControlBar />
           </ChatProvider>
         ) : (
