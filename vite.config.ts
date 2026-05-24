@@ -28,6 +28,10 @@ export default defineConfig({
         "src/components/MeetingControlBar.tsx",
         "src/components/VideoMeeting.tsx",
         "src/components/AttendeeList.tsx",
+        "src/components/ChatPanel.tsx",
+        "src/components/ChatMessage.tsx",
+        "src/components/ChatToggleButton.tsx",
+        "src/context/ChatContext.tsx",
       ],
       thresholds: {
         branches: 90,

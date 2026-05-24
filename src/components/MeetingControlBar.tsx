@@ -15,6 +15,7 @@ import {
 } from "amazon-chime-sdk-component-library-react";
 import { Loader, Text } from "@aws-amplify/ui-react";
 import { useRecording } from "../hooks/useRecording";
+import ChatToggleButton from "./ChatToggleButton";
 
 const MeetingControlBar = () => {
   const audioVideo = useAudioVideo();
@@ -52,6 +53,7 @@ const MeetingControlBar = () => {
         onClick={() => toggleContentShare()}
         label="Share"
       />
+      <ChatToggleButton />
       <ControlBarButton
         icon={iconMap[iconType]}
         onClick={clickMap[clickAction]}
