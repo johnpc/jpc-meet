@@ -1,0 +1,24 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Add unit tests for the chat hook and utility logic to maintain the project's testing standards.",
+  "status": "pending",
+  "steps": [
+    "Create src/hooks/useChat.test.ts - Test the useChat hook: (1) mock useAudioVideo to return a mock AudioVideoFacade with realtimeSendDataMessage and realtimeSubscribeToReceiveDataMessage, (2) test that sendMessage calls realtimeSendDataMessage with correct topic and JSON payload, (3) test that incoming DataMessages are parsed and added to messages state, (4) test that sendReaction calls realtimeSendDataMessage with the reaction topic, (5) test that reactions are accumulated correctly on messages, (6) test cleanup unsubscribes on unmount. Follow the mocking pattern from useVideoMeeting.test.ts and useMeeting.test.ts.",
+    "Create src/context/ChatContext.test.tsx - Test the ChatContext provider: (1) test that toggleChat flips isChatOpen, (2) test that unreadCount increments when chat is closed and message arrives, (3) test that unreadCount resets when chat is opened.",
+    "Run 'npx vitest run' to confirm all tests pass including new ones",
+    "Run 'npx tsc -b' to confirm types are correct"
+  ],
+  "acceptance_criteria": [
+    "useChat hook tests cover: sending messages, receiving messages, sending reactions, receiving reactions, cleanup on unmount",
+    "ChatContext tests cover: toggle behavior, unread count logic",
+    "All tests pass (npx vitest run)",
+    "TypeScript compilation passes (npx tsc -b)"
+  ],
+  "verification": [
+    "Run 'npx vitest run' and confirm all tests pass",
+    "Run 'npx tsc -b' and confirm no type errors"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

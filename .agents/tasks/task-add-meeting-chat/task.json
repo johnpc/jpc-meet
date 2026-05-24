@@ -1,0 +1,7 @@
+{
+  "task_id": "task-add-meeting-chat",
+  "task_description": "Add an in-meeting chat feature using Chime SDK DataMessage API with markdown rendering, hyperlink handling, and emoji reactions on messages.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}

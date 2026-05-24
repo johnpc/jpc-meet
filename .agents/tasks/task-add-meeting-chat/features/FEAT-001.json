@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-001",
+  "type": "chore",
+  "description": "Install dependencies and verify baseline project builds and tests pass. Install new packages needed for the chat feature: react-markdown (markdown rendering), remark-gfm (GitHub flavored markdown support).",
+  "status": "in_progress",
+  "steps": [
+    "Run 'npm install' to install existing dependencies",
+    "Run 'npx tsc -b' to verify TypeScript compilation passes",
+    "Run 'npx vitest run' to verify existing tests pass",
+    "Install new dependencies: 'npm install react-markdown remark-gfm'",
+    "Install type definitions if needed (react-markdown ships its own types)",
+    "Run 'npx tsc -b && npx vitest run' again to confirm nothing is broken after adding new deps"
+  ],
+  "acceptance_criteria": [
+    "npm install succeeds without errors",
+    "TypeScript compilation (tsc -b) passes",
+    "All existing tests pass (vitest run)",
+    "react-markdown and remark-gfm are in package.json dependencies",
+    "Build still passes after adding new dependencies"
+  ],
+  "verification": [
+    "Run 'npx tsc -b' and confirm exit code 0",
+    "Run 'npx vitest run' and confirm all tests pass",
+    "Run 'npx vite build' and confirm it succeeds"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
