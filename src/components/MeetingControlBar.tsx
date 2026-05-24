@@ -16,8 +16,14 @@ import {
 import { Loader, Text } from "@aws-amplify/ui-react";
 import { useRecording } from "../hooks/useRecording";
 import ChatToggleButton from "./ChatToggleButton";
+import { EditNameButton } from "./EditNameButton";
 
-const MeetingControlBar = () => {
+export interface MeetingControlBarProps {
+  attendeeName?: string;
+  onNameChange?: (newName: string) => void;
+}
+
+const MeetingControlBar = ({ attendeeName, onNameChange }: MeetingControlBarProps) => {
   const audioVideo = useAudioVideo();
   const meetingManager = useMeetingManager();
   const { toggleContentShare } = useContentShareControls();
@@ -42,31 +48,36 @@ const MeetingControlBar = () => {
   }
 
   return (
-    <ControlBar showLabels={true} responsive={true} layout="bottom">
-      <ControlBarButton
-        icon={<LeaveMeeting />}
-        onClick={() => meetingManager.leave()}
-        label="Leave"
-      />
-      <ControlBarButton
-        icon={<ScreenShare />}
-        onClick={() => toggleContentShare()}
-        label="Share"
-      />
-      <ChatToggleButton />
-      <ControlBarButton
-        icon={iconMap[iconType]}
-        onClick={clickMap[clickAction]}
-        label={
-          (
-            <Text textAlign={"center"}>{recordingLabel}</Text>
-          ) as unknown as string
-        }
-      />
-      <AudioInputControl />
-      <AudioOutputControl />
-      <VideoInputControl />
-    </ControlBar>
+    <div className="control-bar-wrapper">
+      <ControlBar showLabels={true} responsive={true} layout="bottom">
+        <ControlBarButton
+          icon={<LeaveMeeting />}
+          onClick={() => meetingManager.leave()}
+          label="Leave"
+        />
+        <ControlBarButton
+          icon={<ScreenShare />}
+          onClick={() => toggleContentShare()}
+          label="Share"
+        />
+        <ChatToggleButton />
+        <ControlBarButton
+          icon={iconMap[iconType]}
+          onClick={clickMap[clickAction]}
+          label={
+            (
+              <Text textAlign={"center"}>{recordingLabel}</Text>
+            ) as unknown as string
+          }
+        />
+        {attendeeName && onNameChange && (
+          <EditNameButton attendeeName={attendeeName} onNameChange={onNameChange} />
+        )}
+        <AudioInputControl />
+        <AudioOutputControl />
+        <VideoInputControl />
+      </ControlBar>
+    </div>
   );
 };
 
