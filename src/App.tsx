@@ -12,6 +12,7 @@ import "./App.css";
 import { CopyLink } from "./components/CopyLink";
 import { AttendeeList } from "./components/AttendeeList";
 import { useMeeting } from "./hooks/useMeeting";
+import { useAttendeeNames } from "./hooks/useAttendeeNames";
 import { ChatProvider } from "./context/ChatContext";
 import { ChatPanel } from "./components/ChatPanel";
 
@@ -29,13 +30,21 @@ function MeetingApp() {
     setAttendeeName,
   } = useMeeting();
 
+  const { broadcastNameChange, resolveAttendeeName } =
+    useAttendeeNames(attendeeName);
+
+  const handleNameChange = (newName: string) => {
+    setAttendeeName(newName);
+    broadcastNameChange(newName);
+  };
+
   return (
     <>
       <Header />
       <View marginTop={tokens.space.medium}>
         {joinedMeetingId ? (
           <ChatProvider senderName={attendeeName}>
-            <AttendeeList />
+            <AttendeeList resolveAttendeeName={resolveAttendeeName} />
             <div className="meeting-layout">
               <Card variation="elevated" style={{ flex: 1 }}>
                 <VideoMeeting />
@@ -47,7 +56,7 @@ function MeetingApp() {
             </div>
             <MeetingControlBar
               attendeeName={attendeeName}
-              onNameChange={setAttendeeName}
+              onNameChange={handleNameChange}
             />
           </ChatProvider>
         ) : (
