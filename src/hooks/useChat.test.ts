@@ -249,6 +249,88 @@ describe("useChat", () => {
     }).not.toThrow();
   });
 
+  it("deduplicates incoming messages with the same messageId", () => {
+    const { result } = renderHook(() => useChat());
+
+    const chatMessageCallback =
+      mockRealtimeSubscribeToReceiveDataMessage.mock.calls.find(
+        (call) => call[0] === "chat-message",
+      )?.[1];
+
+    const payload = {
+      senderName: "User",
+      message: "Hello",
+      messageId: "dup-1",
+      timestamp: 1000,
+    };
+
+    act(() => {
+      chatMessageCallback(createDataMessage("chat-message", payload));
+    });
+    act(() => {
+      chatMessageCallback(createDataMessage("chat-message", payload));
+    });
+
+    expect(result.current.messages).toHaveLength(1);
+  });
+
+  it("toggling a reaction removes it when already present", () => {
+    const { result } = renderHook(() => useChat());
+
+    act(() => {
+      result.current.sendMessage("Hello");
+    });
+
+    const messageId = result.current.messages[0].id;
+
+    act(() => {
+      result.current.sendReaction(messageId, "\u{1F44D}");
+    });
+    expect(result.current.messages[0].reactions["\u{1F44D}"]).toEqual(["Test User"]);
+
+    act(() => {
+      result.current.sendReaction(messageId, "\u{1F44D}");
+    });
+    expect(result.current.messages[0].reactions["\u{1F44D}"]).toBeUndefined();
+  });
+
+  it("incoming reaction toggle removes sender when already reacted", () => {
+    const { result } = renderHook(() => useChat());
+
+    act(() => {
+      result.current.sendMessage("Hello");
+    });
+    const messageId = result.current.messages[0].id;
+
+    const reactionCallback =
+      mockRealtimeSubscribeToReceiveDataMessage.mock.calls.find(
+        (call) => call[0] === "chat-reaction",
+      )?.[1];
+
+    const payload = { messageId, emoji: "\u{1F525}", senderName: "Bob" };
+
+    act(() => {
+      reactionCallback(createDataMessage("chat-reaction", payload));
+    });
+    expect(result.current.messages[0].reactions["\u{1F525}"]).toEqual(["Bob"]);
+
+    act(() => {
+      reactionCallback(createDataMessage("chat-reaction", payload));
+    });
+    expect(result.current.messages[0].reactions["\u{1F525}"]).toBeUndefined();
+  });
+
+  it("sendMessage does not add message when text is empty", () => {
+    const { result } = renderHook(() => useChat());
+
+    act(() => {
+      result.current.sendMessage("   ");
+    });
+
+    expect(mockRealtimeSendDataMessage).not.toHaveBeenCalled();
+    expect(result.current.messages).toHaveLength(0);
+  });
+
   it("handleChatReaction drops malformed payloads without crashing", () => {
     renderHook(() => useChat());
 
