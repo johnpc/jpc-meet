@@ -79,6 +79,8 @@ describe("LandingPage", () => {
     onStartMeeting: vi.fn().mockResolvedValue(undefined),
     loadingAction: null as "start" | "join" | "auto" | null,
     error: "",
+    attendeeName: "Test User",
+    onAttendeeNameChange: vi.fn(),
   };
 
   it("renders start meeting button", () => {
@@ -140,5 +142,43 @@ describe("LandingPage", () => {
       "enter-pin",
       "join",
     );
+  });
+
+  it("renders the name input", () => {
+    render(<LandingPage {...defaultProps} />);
+    const input = screen.getByPlaceholderText("Enter your name");
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveValue("Test User");
+  });
+
+  it("calls onAttendeeNameChange when name input changes", () => {
+    render(<LandingPage {...defaultProps} />);
+    const input = screen.getByPlaceholderText("Enter your name");
+    fireEvent.change(input, { target: { value: "New Name" } });
+    expect(defaultProps.onAttendeeNameChange).toHaveBeenCalledWith("New Name");
+  });
+
+  it("prevents start meeting with empty name", () => {
+    const props = {
+      ...defaultProps,
+      onStartMeeting: vi.fn().mockResolvedValue(undefined),
+      attendeeName: "",
+    };
+    render(<LandingPage {...props} />);
+    fireEvent.click(screen.getByText("Start Meeting"));
+    expect(props.onStartMeeting).not.toHaveBeenCalled();
+  });
+
+  it("prevents join meeting with empty name", () => {
+    const props = {
+      ...defaultProps,
+      onJoinMeeting: vi.fn().mockResolvedValue(undefined),
+      attendeeName: "",
+    };
+    render(<LandingPage {...props} />);
+    const input = screen.getByPlaceholderText("Enter meeting PIN");
+    fireEvent.change(input, { target: { value: "test-pin" } });
+    fireEvent.click(screen.getByText("Join Meeting"));
+    expect(props.onJoinMeeting).not.toHaveBeenCalled();
   });
 });

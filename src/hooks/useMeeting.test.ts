@@ -159,4 +159,20 @@ describe("useMeeting", () => {
     const { result } = renderHook(() => useMeeting());
     expect(result.current.attendeeName).toBe("Playful Cat");
   });
+
+  it("setAttendeeName updates the attendee name", () => {
+    const { result } = renderHook(() => useMeeting());
+    act(() => {
+      result.current.setAttendeeName("New Name");
+    });
+    expect(result.current.attendeeName).toBe("New Name");
+  });
+
+  it("setAttendeeName strips # characters", () => {
+    const { result } = renderHook(() => useMeeting());
+    act(() => {
+      result.current.setAttendeeName("Name#With#Hashes");
+    });
+    expect(result.current.attendeeName).toBe("NameWithHashes");
+  });
 });

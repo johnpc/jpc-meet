@@ -20,6 +20,8 @@ interface LandingPageProps {
   onStartMeeting: () => Promise<void>;
   loadingAction: LoadingAction;
   error: string;
+  attendeeName: string;
+  onAttendeeNameChange: (name: string) => void;
 }
 
 export const LandingPage = ({
@@ -27,16 +29,27 @@ export const LandingPage = ({
   onStartMeeting,
   loadingAction,
   error,
+  attendeeName,
+  onAttendeeNameChange,
 }: LandingPageProps) => {
   const { tokens } = useTheme();
   const [meetingPin, setMeetingPin] = useState("");
   const [localError, setLocalError] = useState("");
 
   const handleStartNewMeeting = async () => {
+    if (!attendeeName.trim()) {
+      setLocalError("Please enter your name.");
+      return;
+    }
+    setLocalError("");
     await onStartMeeting();
   };
 
   const handleJoinMeeting = async () => {
+    if (!attendeeName.trim()) {
+      setLocalError("Please enter your name.");
+      return;
+    }
     if (!meetingPin.trim()) {
       setLocalError("Please enter a meeting PIN.");
       return;
@@ -78,6 +91,28 @@ export const LandingPage = ({
             {displayError}
           </Alert>
         )}
+
+        {/* Your Name Section */}
+        <Card variation="elevated" width="100%" padding={tokens.space.large}>
+          <Flex
+            direction="column"
+            alignItems="center"
+            gap={tokens.space.medium}
+          >
+            <Heading level={4}>Your Name</Heading>
+            <TextField
+              label="Your Name"
+              labelHidden
+              placeholder="Enter your name"
+              value={attendeeName}
+              onChange={(e) => {
+                onAttendeeNameChange(e.target.value);
+                if (localError) setLocalError("");
+              }}
+              isDisabled={loadingAction !== null}
+            />
+          </Flex>
+        </Card>
 
         {/* Start New Meeting Section */}
         <Card variation="elevated" width="100%" padding={tokens.space.large}>

@@ -1,27 +1,22 @@
-import { useRef, useEffect } from "react";
+import { useEffect } from "react";
 import {
   RosterAttendee,
   RosterAttendeeType,
   useMeetingManager,
   useRosterState,
 } from "amazon-chime-sdk-component-library-react";
-import { generateAttendeeName } from "../utils/attendee";
 
 export const AttendeeList = () => {
   const { roster } = useRosterState();
   const meetingManager = useMeetingManager();
   const attendees = Object.values(roster);
-  const nameCacheRef = useRef<Record<string, string>>({});
 
   useEffect(() => {
     meetingManager.getAttendee = async (
-      chimeAttendeeId: string,
-      _externalUserId?: string,
+      _chimeAttendeeId: string,
+      externalUserId?: string,
     ) => {
-      if (!nameCacheRef.current[chimeAttendeeId]) {
-        nameCacheRef.current[chimeAttendeeId] = generateAttendeeName();
-      }
-      return { name: nameCacheRef.current[chimeAttendeeId] };
+      return { name: externalUserId?.split("#")[0] || "Unknown" };
     };
   }, [meetingManager]);
 
