@@ -93,4 +93,101 @@ describe("EditNameModal", () => {
     fireEvent.change(input, { target: { value: "New" } });
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
+
+  it("shows error when name exceeds 64 characters", () => {
+    const onSave = vi.fn();
+    render(
+      <EditNameModal
+        currentName="Alice"
+        isOpen={true}
+        onSave={onSave}
+        onCancel={vi.fn()}
+      />,
+    );
+    const input = screen.getByLabelText("Display Name");
+    fireEvent.change(input, { target: { value: "A".repeat(65) } });
+    fireEvent.click(screen.getByText("Save"));
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Name must be 64 characters or fewer.",
+    );
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it("calls onSave when Enter key is pressed", () => {
+    const onSave = vi.fn();
+    render(
+      <EditNameModal
+        currentName="Alice"
+        isOpen={true}
+        onSave={onSave}
+        onCancel={vi.fn()}
+      />,
+    );
+    const input = screen.getByLabelText("Display Name");
+    fireEvent.change(input, { target: { value: "Bob" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onSave).toHaveBeenCalledWith("Bob");
+  });
+
+  it("calls onCancel when Escape key is pressed", () => {
+    const onCancel = vi.fn();
+    render(
+      <EditNameModal
+        currentName="Alice"
+        isOpen={true}
+        onSave={vi.fn()}
+        onCancel={onCancel}
+      />,
+    );
+    const input = screen.getByLabelText("Display Name");
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(onCancel).toHaveBeenCalled();
+  });
+
+  it("calls onCancel when overlay backdrop is clicked", () => {
+    const onCancel = vi.fn();
+    render(
+      <EditNameModal
+        currentName="Alice"
+        isOpen={true}
+        onSave={vi.fn()}
+        onCancel={onCancel}
+      />,
+    );
+    fireEvent.click(screen.getByRole("dialog").parentElement!);
+    expect(onCancel).toHaveBeenCalled();
+  });
+
+  it("resets name to currentName when reopened", () => {
+    const { rerender } = render(
+      <EditNameModal
+        currentName="Alice"
+        isOpen={true}
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    const input = screen.getByLabelText("Display Name") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "Changed" } });
+    expect(input.value).toBe("Changed");
+
+    rerender(
+      <EditNameModal
+        currentName="Alice"
+        isOpen={false}
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    rerender(
+      <EditNameModal
+        currentName="Alice"
+        isOpen={true}
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    const reopened = screen.getByLabelText("Display Name") as HTMLInputElement;
+    expect(reopened.value).toBe("Alice");
+  });
 });
