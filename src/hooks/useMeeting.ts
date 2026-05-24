@@ -57,6 +57,14 @@ export function useMeeting() {
   const [error, setError] = useState("");
   const meetingManager = useMeetingManager();
   const attendeeNameRef = useRef(generateAttendeeName());
+  const [attendeeName, setAttendeeNameState] = useState(
+    attendeeNameRef.current,
+  );
+
+  const setAttendeeName = useCallback((name: string) => {
+    attendeeNameRef.current = name;
+    setAttendeeNameState(name);
+  }, []);
 
   const handleJoinMeeting = useCallback(
     async (meetingPin: string, action: LoadingAction = "join") => {
@@ -114,6 +122,7 @@ export function useMeeting() {
     error,
     handleJoinMeeting,
     handleStartMeeting,
-    attendeeName: attendeeNameRef.current,
+    attendeeName,
+    setAttendeeName,
   };
 }

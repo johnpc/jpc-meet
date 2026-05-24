@@ -44,6 +44,7 @@ vi.mock("@aws-amplify/ui-react", () => ({
     onChange,
     onKeyDown,
     isDisabled,
+    label,
   }: {
     placeholder?: string;
     value?: string;
@@ -61,6 +62,7 @@ vi.mock("@aws-amplify/ui-react", () => ({
       onChange={onChange}
       onKeyDown={onKeyDown}
       disabled={isDisabled}
+      aria-label={label}
     />
   ),
   View: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -79,6 +81,8 @@ describe("LandingPage", () => {
     onStartMeeting: vi.fn().mockResolvedValue(undefined),
     loadingAction: null as "start" | "join" | "auto" | null,
     error: "",
+    attendeeName: "Playful Cat",
+    onAttendeeNameChange: vi.fn(),
   };
 
   it("renders start meeting button", () => {
@@ -140,5 +144,38 @@ describe("LandingPage", () => {
       "enter-pin",
       "join",
     );
+  });
+
+  it("renders name input with default attendee name", () => {
+    render(<LandingPage {...defaultProps} />);
+    const nameInput = screen.getByDisplayValue("Playful Cat");
+    expect(nameInput).toBeInTheDocument();
+  });
+
+  it("calls onAttendeeNameChange when name is edited", () => {
+    render(<LandingPage {...defaultProps} />);
+    const nameInput = screen.getByDisplayValue("Playful Cat");
+    fireEvent.change(nameInput, { target: { value: "New Name" } });
+    expect(defaultProps.onAttendeeNameChange).toHaveBeenCalledWith("New Name");
+  });
+
+  it("shows error when trying to start with empty name", () => {
+    const onStartMeeting = vi.fn().mockResolvedValue(undefined);
+    render(
+      <LandingPage {...defaultProps} attendeeName="" onStartMeeting={onStartMeeting} />,
+    );
+    fireEvent.click(screen.getByText("Start Meeting"));
+    expect(onStartMeeting).not.toHaveBeenCalled();
+  });
+
+  it("shows error when trying to join with empty name", () => {
+    const onJoinMeeting = vi.fn().mockResolvedValue(undefined);
+    render(
+      <LandingPage {...defaultProps} attendeeName="" onJoinMeeting={onJoinMeeting} />,
+    );
+    const input = screen.getByPlaceholderText("Enter meeting PIN");
+    fireEvent.change(input, { target: { value: "test-pin" } });
+    fireEvent.click(screen.getByText("Join Meeting"));
+    expect(onJoinMeeting).not.toHaveBeenCalled();
   });
 });

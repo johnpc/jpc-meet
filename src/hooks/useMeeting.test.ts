@@ -159,4 +159,39 @@ describe("useMeeting", () => {
     const { result } = renderHook(() => useMeeting());
     expect(result.current.attendeeName).toBe("Playful Cat");
   });
+
+  it("setAttendeeName updates the attendee name", async () => {
+    const { result } = renderHook(() => useMeeting());
+    expect(result.current.attendeeName).toBe("Playful Cat");
+
+    act(() => {
+      result.current.setAttendeeName("Custom Name");
+    });
+
+    expect(result.current.attendeeName).toBe("Custom Name");
+  });
+
+  it("uses updated attendeeName when joining after setAttendeeName", async () => {
+    mockGetMeetingMetadata.mockResolvedValue({
+      data: {
+        audioFallbackUrl: "u",
+        audioHostUrl: "u",
+        signalingUrl: "u",
+        turnControlUrl: "u",
+      },
+    });
+
+    const { result } = renderHook(() => useMeeting());
+
+    act(() => {
+      result.current.setAttendeeName("Custom Name");
+    });
+
+    await act(async () => {
+      await result.current.handleJoinMeeting("valid-pin");
+    });
+
+    const callArgs = mockGetMeetingMetadata.mock.calls[0][0];
+    expect(callArgs.attendeeName).toBe("Custom Name");
+  });
 });

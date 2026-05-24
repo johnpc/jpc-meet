@@ -26,6 +26,7 @@ function MeetingApp() {
     handleJoinMeeting,
     handleStartMeeting,
     attendeeName,
+    setAttendeeName,
   } = useMeeting();
 
   return (
@@ -53,6 +54,8 @@ function MeetingApp() {
               onStartMeeting={handleStartMeeting}
               loadingAction={loadingAction}
               error={error}
+              attendeeName={attendeeName}
+              onAttendeeNameChange={setAttendeeName}
             />
             <MeetingControlBar />
           </>
