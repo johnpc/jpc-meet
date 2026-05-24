@@ -52,7 +52,7 @@ const createChimeAttendee = async (
   const attendeeResponse = await chime.send(
     new CreateAttendeeCommand({
       MeetingId: meetingFields.meetingId!,
-      ExternalUserId: uuidv4(),
+      ExternalUserId: `${attendeeName}#${uuidv4()}`,
     }),
   );
   const attendeeFields = {
