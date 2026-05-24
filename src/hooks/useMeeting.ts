@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   useMeetingManager,
   DeviceLabels,
 } from "amazon-chime-sdk-component-library-react";
 import { MeetingSessionConfiguration } from "amazon-chime-sdk-js";
-import { v4 as uuidv4 } from "uuid";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../amplify/data/resource";
 import {
@@ -12,6 +11,7 @@ import {
   isValidMeetingName,
   parseMeetingPinFromPath,
 } from "../utils/meeting";
+import { generateAttendeeName } from "../utils/attendee";
 
 export type LoadingAction = "start" | "join" | "auto" | null;
 
@@ -56,6 +56,7 @@ export function useMeeting() {
   const [loadingAction, setLoadingAction] = useState<LoadingAction>(null);
   const [error, setError] = useState("");
   const meetingManager = useMeetingManager();
+  const attendeeNameRef = useRef(generateAttendeeName());
 
   const handleJoinMeeting = useCallback(
     async (meetingPin: string, action: LoadingAction = "join") => {
@@ -71,7 +72,7 @@ export function useMeeting() {
       try {
         const meetingFieldsResponse = await client.queries.getMeetingMetadata({
           meetingName: meetingPin,
-          attendeeName: uuidv4(),
+          attendeeName: attendeeNameRef.current,
         });
 
         const meetingFields = meetingFieldsResponse.data!;
@@ -113,5 +114,6 @@ export function useMeeting() {
     error,
     handleJoinMeeting,
     handleStartMeeting,
+    attendeeName: attendeeNameRef.current,
   };
 }

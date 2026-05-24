@@ -23,10 +23,15 @@ vi.mock("uuid", () => ({
   v4: () => "test-uuid",
 }));
 
+vi.mock("../utils/attendee", () => ({
+  generateAttendeeName: () => "Playful Cat",
+}));
+
 vi.mock("aws-amplify/api", () => ({
   generateClient: () => ({
     queries: {
-      getMeetingMetadata: (...args: unknown[]) => mockGetMeetingMetadata(...args),
+      getMeetingMetadata: (...args: unknown[]) =>
+        mockGetMeetingMetadata(...args),
     },
   }),
 }));
@@ -126,5 +131,32 @@ describe("useMeeting", () => {
     });
 
     expect(result.current.joinedMeetingId).toHaveLength(10);
+  });
+
+  it("passes a friendly attendeeName to getMeetingMetadata instead of a UUID", async () => {
+    mockGetMeetingMetadata.mockResolvedValue({
+      data: {
+        audioFallbackUrl: "u",
+        audioHostUrl: "u",
+        signalingUrl: "u",
+        turnControlUrl: "u",
+      },
+    });
+
+    const { result } = renderHook(() => useMeeting());
+    await act(async () => {
+      await result.current.handleJoinMeeting("valid-pin");
+    });
+
+    const callArgs = mockGetMeetingMetadata.mock.calls[0][0];
+    expect(callArgs.attendeeName).toBe("Playful Cat");
+    expect(callArgs.attendeeName).not.toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    );
+  });
+
+  it("returns attendeeName from the hook", () => {
+    const { result } = renderHook(() => useMeeting());
+    expect(result.current.attendeeName).toBe("Playful Cat");
   });
 });

@@ -36,16 +36,7 @@ export const ChatPanel: React.FC = () => {
   if (!isChatOpen) return null;
 
   return (
-    <View
-      style={{
-        width: "320px",
-        height: "100%",
-        borderLeft: "1px solid #e0e0e0",
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: "#fafafa",
-      }}
-    >
+    <View className="chat-panel">
       <Flex
         direction="row"
         justifyContent="space-between"

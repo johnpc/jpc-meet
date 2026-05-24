@@ -20,8 +20,8 @@ interface ChatContextType {
 
 export const ChatContext = createContext<ChatContextType | null>(null);
 
-export function ChatProvider({ children }: { children: React.ReactNode }) {
-  const { messages, sendMessage, sendReaction } = useChat();
+export function ChatProvider({ children, senderName }: { children: React.ReactNode; senderName?: string }) {
+  const { messages, sendMessage, sendReaction } = useChat(senderName);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const prevMessageCountRef = useRef(messages.length);
