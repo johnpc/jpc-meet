@@ -12,11 +12,50 @@ import "./App.css";
 import { CopyLink } from "./components/CopyLink";
 import { AttendeeList } from "./components/AttendeeList";
 import { useMeeting } from "./hooks/useMeeting";
-import { useAttendeeNames } from "./hooks/useAttendeeNames";
+import {
+  AttendeeNamesProvider,
+  useAttendeeNamesContext,
+} from "./context/AttendeeNamesContext";
 import { ChatProvider } from "./context/ChatContext";
 import { ChatPanel } from "./components/ChatPanel";
 
 Amplify.configure(config);
+
+function MeetingView({
+  joinedMeetingId,
+  attendeeName,
+  setAttendeeName,
+}: {
+  joinedMeetingId: string;
+  attendeeName: string;
+  setAttendeeName: (name: string) => void;
+}) {
+  const { broadcastNameChange } = useAttendeeNamesContext();
+
+  const handleNameChange = (newName: string) => {
+    setAttendeeName(newName);
+    broadcastNameChange(newName);
+  };
+
+  return (
+    <ChatProvider senderName={attendeeName}>
+      <AttendeeList />
+      <div className="meeting-layout">
+        <Card variation="elevated" style={{ flex: 1 }}>
+          <VideoMeeting />
+          <CopyLink
+            link={`${window.location.protocol}//${window.location.hostname}/${joinedMeetingId}`}
+          />
+        </Card>
+        <ChatPanel />
+      </div>
+      <MeetingControlBar
+        attendeeName={attendeeName}
+        onNameChange={handleNameChange}
+      />
+    </ChatProvider>
+  );
+}
 
 function MeetingApp() {
   const { tokens } = useTheme();
@@ -30,35 +69,18 @@ function MeetingApp() {
     setAttendeeName,
   } = useMeeting();
 
-  const { broadcastNameChange, resolveAttendeeName } =
-    useAttendeeNames(attendeeName);
-
-  const handleNameChange = (newName: string) => {
-    setAttendeeName(newName);
-    broadcastNameChange(newName);
-  };
-
   return (
     <>
       <Header />
       <View marginTop={tokens.space.medium}>
         {joinedMeetingId ? (
-          <ChatProvider senderName={attendeeName}>
-            <AttendeeList resolveAttendeeName={resolveAttendeeName} />
-            <div className="meeting-layout">
-              <Card variation="elevated" style={{ flex: 1 }}>
-                <VideoMeeting />
-                <CopyLink
-                  link={`${window.location.protocol}//${window.location.hostname}/${joinedMeetingId}`}
-                />
-              </Card>
-              <ChatPanel />
-            </div>
-            <MeetingControlBar
+          <AttendeeNamesProvider>
+            <MeetingView
+              joinedMeetingId={joinedMeetingId}
               attendeeName={attendeeName}
-              onNameChange={handleNameChange}
+              setAttendeeName={setAttendeeName}
             />
-          </ChatProvider>
+          </AttendeeNamesProvider>
         ) : (
           <>
             <LandingPage

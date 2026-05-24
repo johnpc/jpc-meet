@@ -47,6 +47,43 @@
   }
 }
 
+.attendee-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 16px;
+}
+
+.attendee-chip {
+  background: #e8f0fe;
+  color: #1a73e8;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 8px;
+  height: 60vh;
+  width: 100%;
+}
+
+.video-tile-wrapper {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1a1a2e;
+}
+
+.video-tile-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .edit-name-overlay {
   position: fixed;
   inset: 0;

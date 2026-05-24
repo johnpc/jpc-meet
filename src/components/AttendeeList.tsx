@@ -1,43 +1,18 @@
-import { useEffect } from "react";
-import {
-  RosterAttendee,
-  RosterAttendeeType,
-  useMeetingManager,
-  useRosterState,
-} from "amazon-chime-sdk-component-library-react";
+import { useRosterState } from "amazon-chime-sdk-component-library-react";
+import { useAttendeeNamesContext } from "../context/AttendeeNamesContext";
 
-export interface AttendeeListProps {
-  resolveAttendeeName?: (
-    chimeAttendeeId: string,
-    externalUserId?: string,
-  ) => string;
-}
-
-export const AttendeeList = ({ resolveAttendeeName }: AttendeeListProps) => {
+export const AttendeeList = () => {
   const { roster } = useRosterState();
-  const meetingManager = useMeetingManager();
-  const attendees = Object.values(roster);
-
-  useEffect(() => {
-    meetingManager.getAttendee = async (
-      chimeAttendeeId: string,
-      externalUserId?: string,
-    ) => {
-      const name = resolveAttendeeName
-        ? resolveAttendeeName(chimeAttendeeId, externalUserId)
-        : externalUserId?.split("#")[0] || "Unknown";
-      return { name };
-    };
-  }, [meetingManager, resolveAttendeeName]);
+  const { getAttendeeName } = useAttendeeNamesContext();
+  const attendeeIds = Object.keys(roster);
 
   return (
-    <>
-      {attendees.map((attendee: RosterAttendeeType) => (
-        <RosterAttendee
-          key={attendee.chimeAttendeeId}
-          attendeeId={attendee.chimeAttendeeId}
-        />
+    <div className="attendee-list">
+      {attendeeIds.map((id) => (
+        <span key={id} className="attendee-chip">
+          {getAttendeeName(id)}
+        </span>
       ))}
-    </>
+    </div>
   );
 };
